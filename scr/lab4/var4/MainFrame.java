@@ -28,6 +28,7 @@ private JFileChooser fileChooser = null;
     // Пункты меню
     private JCheckBoxMenuItem showAxisMenuItem;
     private JCheckBoxMenuItem showMarkersMenuItem;
+    private JCheckBoxMenuItem showLinesMenuItem;
     // Компонент-отображатель графика
     private GraphicsDisplay display = new GraphicsDisplay();
     // Флаг, указывающий на загруженность данных графика
@@ -99,6 +100,20 @@ public void actionPerformed(ActionEvent event) {
         graphicsMenu.add(showMarkersMenuItem);
 // Элемент по умолчанию включен (отмечен флажком)
         showMarkersMenuItem.setSelected(true);
+
+        Action showLinesAction = new AbstractAction("Показывать дополнительные линии") {
+
+            public void actionPerformed(ActionEvent event) {
+
+
+                display.setShowLines(showLinesMenuItem.isSelected());
+            }
+        };
+        showLinesMenuItem = new JCheckBoxMenuItem(showLinesAction);
+// Добавить соответствующий элемент в меню
+        graphicsMenu.add(showLinesMenuItem);
+        // Элемент по умолчанию включен (отмечен флажком)
+        showLinesMenuItem.setSelected(true);                                   //
 // Зарегистрировать обработчик событий, связанных с меню "График"
         graphicsMenu.addMenuListener(new GraphicsMenuListener());
 // Установить GraphicsDisplay в цент граничной компоновки
@@ -175,6 +190,7 @@ private class GraphicsMenuListener implements MenuListener {
 
         showAxisMenuItem.setEnabled(fileLoaded);
         showMarkersMenuItem.setEnabled(fileLoaded);
+        showLinesMenuItem.setEnabled(fileLoaded);
     }
     // Обработчик, вызываемый после того, как меню исчезло с экрана
     public void menuDeselected(MenuEvent e) {

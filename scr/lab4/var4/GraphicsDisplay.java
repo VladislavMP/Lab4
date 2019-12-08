@@ -21,6 +21,7 @@ public class GraphicsDisplay extends JPanel {
     // Флаговые переменные, задающие правила отображения графика
     private boolean showAxis = true;
     private boolean showMarkers = true;
+    private boolean showLines = true;
     // Границы диапазона пространства, подлежащего отображению
     private double minX;
     private double maxX;
@@ -69,6 +70,11 @@ public class GraphicsDisplay extends JPanel {
 // Изменение любого параметра приводит к перерисовке области
     public void setShowAxis(boolean showAxis) {
         this.showAxis = showAxis;
+        repaint();
+    }
+
+    public void setShowLines(boolean showLines) {
+        this.showLines = showLines;
         repaint();
     }
 
@@ -172,6 +178,7 @@ minY
 
 // Первыми (если нужно) отрисовываются оси координат.
         if (showAxis) paintAxis(canvas);
+        if (showLines) paintLines(canvas);
 // Затем отображается сам график
         paintGraphics(canvas);
 // Затем (если нужно) отображаются маркеры точек, по которым строился график.
@@ -264,7 +271,21 @@ minY
             canvas.fill(marker); // Залить внутреннюю область маркера
         }
     }
+    protected void paintLines(Graphics2D canvas) {
+// Установить особое начертание для осей
+        canvas.setStroke(axisStroke);
+// Оси рисуются чѐрным цветом
+        canvas.setColor(Color.BLUE);
+// Стрелки заливаются чѐрным цветом
+        canvas.setPaint(Color.BLUE);
+// Подписи к координатным осям делаются специальным шрифтом
+        canvas.setFont(axisFont);
 
+
+        canvas.draw(new Line2D.Double(xyToPoint(minX, (maxY-minY)*0.1), xyToPoint(maxX, (maxY-minY)*0.1)));
+        canvas.draw(new Line2D.Double(xyToPoint(minX, (maxY-minY)*0.5), xyToPoint(maxX, (maxY-minY)*0.5)));
+        canvas.draw(new Line2D.Double(xyToPoint(minX, (maxY-minY)*0.9), xyToPoint(maxX, (maxY-minY)*0.9)));
+    }
     // Метод, обеспечивающий отображение осей координат
     protected void paintAxis(Graphics2D canvas) {
 // Установить особое начертание для осей
