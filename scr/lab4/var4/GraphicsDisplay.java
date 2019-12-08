@@ -35,6 +35,7 @@ public class GraphicsDisplay extends JPanel {
     // Различные шрифты отображения надписей
     private Font axisFont;
 
+    private double averageY = 0;
     public GraphicsDisplay() {
 // Цвет заднего фона области отображения - белый
         setBackground(Color.WHITE);
@@ -89,7 +90,10 @@ public class GraphicsDisplay extends JPanel {
 // Шаг 3 - Определить минимальное и максимальное значения для координат X и Y
 
 // Это необходимо для определения области пространства, подлежащей отображению
-
+        for (int i = 0; i < graphicsData.length; i++) {
+            averageY = averageY + graphicsData[i][1];
+        }
+        averageY = averageY/graphicsData.length;
 // Еѐ верхний левый угол это (minX, maxY) - правый нижний это (maxX, minY)
 
         minX = graphicsData[0][0];
@@ -215,7 +219,17 @@ minY
 // Отобразить график
         canvas.draw(graphics);
     }
+ // Специальные точки
+    protected boolean SpecialPoint(double y){
+        //раскраска маркеров по условию
 
+        boolean flag = false;
+
+        if (y > averageY * 2) flag = true;
+        else flag = false;
+
+        return flag;
+    }
     // Отображение маркеров точек, по которым рисовался график
     protected void paintMarkers(Graphics2D canvas) {
 // Шаг 1 - Установить специальное перо для черчения контуров маркеров
@@ -227,7 +241,16 @@ minY
         canvas.setPaint(Color.RED);
 // Шаг 2 - Организовать цикл по всем точкам графика
         for (Double[] point : graphicsData) {
-// Инициализировать эллипс как объект для представления маркера
+            if(SpecialPoint(point[1]) == true)
+            {
+                canvas.setColor(Color.GREEN);
+                canvas.setPaint(Color.GREEN);
+            }
+            else
+            {
+                canvas.setColor(Color.RED);
+                canvas.setPaint(Color.RED);
+            }
    GeneralPath marker = new GeneralPath();
             Point2D.Double center = xyToPoint(point[0], point[1]);
             marker.moveTo(center.getX(), center.getY()-5.5);
@@ -236,7 +259,6 @@ minY
             marker.lineTo(marker.getCurrentPoint().getX()+5.5, marker.getCurrentPoint().getY()-11);
 
 
-// Задать эллипс по центру и диагонали
 
             canvas.draw(marker); // Начертить контур маркера
             canvas.fill(marker); // Залить внутреннюю область маркера
