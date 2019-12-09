@@ -149,6 +149,7 @@ public class GraphicsDisplay extends JPanel {
             paintGraphics(canvas);
             if (showMarkers) paintMarkers(canvas);
             if (showAxis) this.paintLabels(canvas);
+            this.paintLabelsXY(canvas);
             this.paintSelection(canvas);
             canvas.setFont(oldFont);
             canvas.setPaint(oldPaint);
@@ -198,18 +199,25 @@ public class GraphicsDisplay extends JPanel {
             canvas.drawString(label, (float)(point.getX() + 5.0D), (float)(point.getY() - bounds.getHeight()));
         }
 
-        if (this.selectedMarker >= 0) {
-            point = this.translateXYtoPoint(((Double[])this.graphicsData.get(this.selectedMarker))[0], ((Double[])this.graphicsData.get(this.selectedMarker))[1]);
-            label = "X=" + formatter.format(((Double[])this.graphicsData.get(this.selectedMarker))[0]) + ", Y=" + formatter.format(((Double[])this.graphicsData.get(this.selectedMarker))[1]);
-            bounds = this.labelsFont.getStringBounds(label, context);
-            canvas.setColor(Color.BLACK);
-            if (point.getX() + bounds.getWidth() < this.getSize().getWidth() && (point.getY() - bounds.getHeight()) < this.getSize().getHeight()) {
-                canvas.drawString(label, (float) (point.getX() + 5.0D), (float) (point.getY() - bounds.getHeight()));
-            } else {
-                canvas.drawString(label, (float) (point.getX() - bounds.getWidth()), (float) (point.getY() + bounds.getHeight()));
-            }
+    }
+    private void paintLabelsXY(Graphics2D canvas) {
+    canvas.setColor(Color.BLACK);
+    canvas.setFont(this.labelsFont);
+    FontRenderContext context = canvas.getFontRenderContext();
+    java.awt.geom.Point2D.Double point;
+    String label;
+    Rectangle2D bounds;
+      if (this.selectedMarker >= 0 && showMarkers == true) {
+        point = this.translateXYtoPoint(((Double[])this.graphicsData.get(this.selectedMarker))[0], ((Double[])this.graphicsData.get(this.selectedMarker))[1]);
+        label = "X=" + formatter.format(((Double[])this.graphicsData.get(this.selectedMarker))[0]) + ", Y=" + formatter.format(((Double[])this.graphicsData.get(this.selectedMarker))[1]);
+        bounds = this.labelsFont.getStringBounds(label, context);
+        canvas.setColor(Color.BLACK);
+        if (point.getX() + bounds.getWidth() < this.getSize().getWidth() && (point.getY() - bounds.getHeight()) < this.getSize().getHeight()) {
+            canvas.drawString(label, (float) (point.getX() + 5.0D), (float) (point.getY() - bounds.getHeight()));
+        } else {
+            canvas.drawString(label, (float) (point.getX() - bounds.getWidth()), (float) (point.getY() + bounds.getHeight()));
         }
-
+    }
     }
     // Отрисовка графика по прочитанным координатам
     private void paintGraphics(Graphics2D canvas) {
@@ -370,12 +378,6 @@ public class GraphicsDisplay extends JPanel {
         this.repaint();
     }
 
-    // Сбрасываем изменения
-    public void reset() {
-        displayGraphics(this.originalData);
-    }
-
-
     protected int findSelectedPoint(int x, int y) {
         if (graphicsData == null) return -1;
         int pos = 0;
@@ -430,7 +432,7 @@ public class GraphicsDisplay extends JPanel {
 
         public void mouseMoved(MouseEvent ev) {
             GraphicsDisplay.this.selectedMarker = GraphicsDisplay.this.findSelectedPoint(ev.getX(), ev.getY());
-            if (GraphicsDisplay.this.selectedMarker >= 0) {
+            if (GraphicsDisplay.this.selectedMarker >= 0 && showMarkers == true) {
                 GraphicsDisplay.this.setCursor(Cursor.getPredefinedCursor(2));
             } else {
                 GraphicsDisplay.this.setCursor(Cursor.getPredefinedCursor(0));
