@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
@@ -128,40 +129,19 @@ protected void openGraphics(File selectedFile) {
 
         FileInputStream(selectedFile));
 
-/* Шаг 2 - Зная объѐм данных в потоке ввода можно вычислить,
-* сколько памяти нужно зарезервировать в массиве:
-* Всего байт в потоке - in.available() байт;
-* Размер одного числа Double - Double.SIZE бит, или
+            ArrayList graphicsData = new ArrayList(50);
 
-Double.SIZE/8 байт;
+            while(in.available() > 0) {
+                Double x = in.readDouble();
+                Double y = in.readDouble();
+                graphicsData.add(new Double[]{x, y});
+            }
 
-* Так как числа записываются парами, то число пар меньше в
+            if (graphicsData.size() > 0) {
+                this.fileLoaded = true;
+                this.display.displayGraphics(graphicsData);
+            }
 
-2 раза
-
-*/
-        Double[][] graphicsData = new
-        Double[in.available()/(Double.SIZE/8)/2][];
-
-// Шаг 3 - Цикл чтения данных (пока в потоке есть данные)
-        int i = 0;
-        while (in.available()>0) {
-// Первой из потока читается координата точки X
-        Double x = in.readDouble();
-// Затем - значение графика Y в точке X
-        Double y = in.readDouble();
-// Прочитанная пара координат добавляется в массив
-        graphicsData[i++] = new Double[] {x, y};
-        }
-// Шаг 4 - Проверка, имеется ли в списке в результате чтения хотя бы одна пара координат
-
-        if (graphicsData!=null && graphicsData.length>0) {
-// Да - установить флаг загруженности данных
-        fileLoaded = true;
-// Вызывать метод отображения графика
-        display.showGraphics(graphicsData);
-        }
-// Шаг 5 - Закрыть входной поток
         in.close();
         } catch (FileNotFoundException ex) {
 // В случае исключительной ситуации типа "Файл не найден" показать сообщение об ошибке
