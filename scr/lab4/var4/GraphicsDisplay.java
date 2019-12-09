@@ -48,7 +48,6 @@ public class GraphicsDisplay extends JPanel {
     private double scaleX;
     private double scaleY;
     private boolean scaleMode = false;
-    private boolean changeMode = false;
     private java.awt.geom.Rectangle2D.Double selectionRect = new java.awt.geom.Rectangle2D.Double();
     // Различные стили черчения линий
     private BasicStroke graphicsStroke;
@@ -203,8 +202,12 @@ public class GraphicsDisplay extends JPanel {
             point = this.translateXYtoPoint(((Double[])this.graphicsData.get(this.selectedMarker))[0], ((Double[])this.graphicsData.get(this.selectedMarker))[1]);
             label = "X=" + formatter.format(((Double[])this.graphicsData.get(this.selectedMarker))[0]) + ", Y=" + formatter.format(((Double[])this.graphicsData.get(this.selectedMarker))[1]);
             bounds = this.labelsFont.getStringBounds(label, context);
-            canvas.setColor(Color.BLUE);
-            canvas.drawString(label, (float)(point.getX() + 5.0D), (float)(point.getY() - bounds.getHeight()));
+            canvas.setColor(Color.BLACK);
+            if (point.getX() + bounds.getWidth() < this.getSize().getWidth() && (point.getY() - bounds.getHeight()) < this.getSize().getHeight()) {
+                canvas.drawString(label, (float) (point.getX() + 5.0D), (float) (point.getY() - bounds.getHeight()));
+            } else {
+                canvas.drawString(label, (float) (point.getX() - bounds.getWidth()), (float) (point.getY() + bounds.getHeight()));
+            }
         }
 
     }
@@ -334,13 +337,7 @@ public class GraphicsDisplay extends JPanel {
     * minX - это самое "левое" значение X, а
     * maxY - самое "верхнее" значение Y.
     */
-    protected Point2D.Double xyToPoint(double x, double y) {
-// Вычисляем смещение X от самой левой точки (minX)
-        double deltaX = x - minX;
-// Вычисляем смещение Y от точки верхней точки (maxY)
-        double deltaY = maxY - y;
-        return new Point2D.Double(deltaX * scale, deltaY * scale);
-    }
+
 
     /* Метод-помощник, возвращающий экземпляр класса Point2D.Double
      * смещѐнный по отношению к исходному на deltaX, deltaY
@@ -378,12 +375,12 @@ public class GraphicsDisplay extends JPanel {
         displayGraphics(this.originalData);
     }
 
-    //Приближаем
+
     protected int findSelectedPoint(int x, int y) {
         if (graphicsData == null) return -1;
         int pos = 0;
         for (Double[] point : graphicsData) {
-            Point2D.Double screenPoint = xyToPoint(point[0].doubleValue(), point[1].doubleValue());
+            Point2D.Double screenPoint = translateXYtoPoint(point[0].doubleValue(), point[1].doubleValue());
             double distance = (screenPoint.getX() - x) * (screenPoint.getX() - x) + (screenPoint.getY() - y) * (screenPoint.getY() - y);
             if (distance < 100) return pos;
             pos++;
